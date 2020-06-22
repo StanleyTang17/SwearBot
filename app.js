@@ -18,6 +18,7 @@ var swear_words;
 
 fs.readFile('swear_words.txt', 'utf8', (err, data) => {
     if(err) throw err;
+    console.log('fix swear word overlap');
     swear_words = data.toString().trim().split(/\r?\n/);
     console.log('Word bank loaded');
 });
