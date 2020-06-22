@@ -76,8 +76,8 @@ client.on('guildCreate', guild => {
 });
 
 client.on('guildMemberAdd', member => {
-    var id = member.user.id
-    
+    if(member.user.bot) return;
+    const id = member.user.id
     User.GuildUser.findOne({discord_id : id, guild_id : member.guild.id}, (err, docs) => {
         if(err) throw err;
         if(!docs) User.createGuildUser(id, member.user.username);
