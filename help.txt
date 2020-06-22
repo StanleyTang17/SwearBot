@@ -1,10 +1,14 @@
 !!info - displays information about your swear usage
+
 !!swear [setting] [channel] - configures how swearing is handled in a specific channel
+    [setting]
+    ignore - ignore any swearing
+    censor - censor the message that contains swearing
+    remove - remove the message that contains swearing
 
-[setting]
-ignore - ignore any swearing
-censor - censor the message that contains swearing
-remove - remove the message that contains swearing
+    [channel]
+    The name of the channel that the setting applies to. If this field is not entered, all the channels will be updated with the setting.
 
-[channel]
-The name of the channel that the setting applies to. If this field is not entered, all the channels will be updated with the setting.
+!!threshold - displays the threshold of swear usage before a user gets banned
+
+!!threshold [new_ban_threshold] - sets a new ban threshold

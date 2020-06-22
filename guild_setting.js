@@ -68,5 +68,12 @@ module.exports = {
             {guild_id : guild.id},
             {$set : {channels : channel_settings}}
         ).then(() => {console.log(`refreshed settings for ${guild.name}`);});
+    },
+
+    setBanThreshold : (guild, count) => {
+        module.exports.GuildSetting.findOneAndUpdate(
+            {guild_id : guild.id},
+            {$set : {ban_threshold : count} }
+        ).then(() => {console.log(`updated threshold for ${guild.name}`);});
     }
 }

@@ -19,7 +19,6 @@ var swear_words;
 
 fs.readFile('swear_words.txt', 'utf8', (err, data) => {
     if(err) throw err;
-    console.log('fix swear word overlap');
     swear_words = data.toString().trim().split(/\r?\n/);
     console.log('Word bank loaded');
 });
@@ -78,7 +77,8 @@ client.on('guildCreate', guild => {
 
 client.on('guildMemberAdd', member => {
     var id = member.user.id
-    User.GuildUser.findOne({discord_id : id}, (err, docs) => {
+    
+    User.GuildUser.findOne({discord_id : id, guild_id : member.guild.id}, (err, docs) => {
         if(err) throw err;
         if(!docs) User.createGuildUser(id, member.user.username);
     });
@@ -109,7 +109,18 @@ client.on('message', msg => {
                 $set : { clean_streak : -1 },
                 $addToSet : { swear_quotes : {content:sentence, date:Date.now(), usage:words} } 
             }
-            User.GuildUser.findOneAndUpdate(user_query, update).then();
+            User.GuildUser.findOneAndUpdate(user_query, update).then(() => {
+                User.GuildUser.findOne(user_query, (err, user_data) => {
+                    Guild.GuildSetting.findOne({guild_id : msg.guild.id}, (err, guild_setting) => {
+                        if(err) throw err;
+                        if(guild_setting.ban_threshold > 0 && user_data.swear_usage > guild_setting.ban_threshold) {
+                            msg.member.ban();
+                            msg.channel.send(`${msg.member.displayName} has been banned for exceeding the swear usage threshold!!`);
+                        }
+                            
+                    });
+                });
+            });
             Guild.GuildSetting.findOne({guild_id : msg.guild.id}, (err, result) => {
                 for(const channel_setting of result.channels) {
                     if(channel_setting.id === msg.channel.id) {
@@ -164,13 +175,44 @@ client.on('message', msg => {
                 }else
                     msg.channel.send('invalid setting')
                 break;
+            case "threshold":
+                const arg = args.shift();
+                if(arg) {
+                    if(arg.length < 9) {
+                        const threshold = parseInt(arg);
+                        Guild.setBanThreshold(msg.guild, threshold);
+                        msg.channel.send('ban threshold updated to ' + threshold);
+                    }else
+                        msg.channel.send('number too big or too small');
+                }else {
+                    Guild.GuildSetting.findOne({guild_id : msg.guild.id}, (err, result) => {
+                        if(err) throw err;
+                        const threshold = result.ban_threshold;
+                        var warning;
+                        if(threshold > 0)
+                            warning = 'Users with swear usage above this number will be banned!';
+                        else
+                            warning = "Seems like there's no threshold. Don't worry about getting banned for swearing."
+                        const thresholdEmbed = {
+                            color: 0x0099ff,
+                            title: 'Swear Usage Threshold: ' + threshold,
+                            fields: [
+                                {
+                                    name : '',
+                                    value : warning
+                                },
+                            ]
+                        };
+                        msg.channel.send({embed : thresholdEmbed});
+                    });
+                }
             case "help":
                 const helpEmbed = {
                     color: 0x0099ff,
                     title: 'SwearBot Commands',
                     fields: [
                         {
-                            name : 'swear usage',
+                            name : '',
                             value : helpMsg
                         },
                     ]
