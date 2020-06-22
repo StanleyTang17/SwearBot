@@ -201,6 +201,7 @@ client.on('message', msg => {
                         msg.channel.send({embed : thresholdEmbed});
                     });
                 }
+                break;
             case "help":
                 const helpEmbed = {
                     color: 0x0099ff,
