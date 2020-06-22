@@ -196,12 +196,7 @@ client.on('message', msg => {
                         const thresholdEmbed = {
                             color: 0x0099ff,
                             title: 'Swear Usage Threshold: ' + threshold,
-                            fields: [
-                                {
-                                    name : '',
-                                    value : warning
-                                },
-                            ]
+                            description: warning
                         };
                         msg.channel.send({embed : thresholdEmbed});
                     });
@@ -210,12 +205,7 @@ client.on('message', msg => {
                 const helpEmbed = {
                     color: 0x0099ff,
                     title: 'SwearBot Commands',
-                    fields: [
-                        {
-                            name : '',
-                            value : helpMsg
-                        },
-                    ]
+                    description : helpMsg
                 };
                 msg.channel.send({embed : helpEmbed});
                 break;
