@@ -74,9 +74,14 @@ client.on('message', msg => {
     if(sentence.slice(0, 2) !== config.prefix) {
         const tokens = sentence.trim().toLowerCase().match(/\S+/g);
         var words = 0;
+        var indices = [];
         tokens.map(token => {
             swear_words.map(swear_word => {
-                if(token.includes(swear_word)) words++;
+                const index = token.indexOf(swear_word);
+                if(index != -1 && !indices.includes(index)) {
+                    words++;
+                    indices.push(index);
+                }
             });
         });
         if(words) {
