@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const User = require('./user');
 const Guild = require('./guild_setting');
 const fs = require('fs');
+const CronJob = require('cron').CronJob;
 const { doesNotMatch } = require('assert');
 require('dotenv-flow').config();
 
@@ -23,6 +24,14 @@ fs.readFile('swear_words.txt', 'utf8', (err, data) => {
     console.log('Word bank loaded');
 });
 
+var helpMsg;
+
+fs.readFile('help.txt', 'utf8', (err, data) => {
+    if(err) throw err;
+    helpMsg = data.toString();
+    console.log('Help message loaded');
+});
+
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
@@ -32,7 +41,16 @@ mongoose.connect(config.db_connection, err => {
     console.log("Database connected");
 });
 
-client.on('ready', () => {console.log(`Logged in as ${client.user.tag}!`);});
+const update_streak = new CronJob('00 00 00 * * *', () => {
+    User.GuildUser.updateMany({}, {
+        $inc : {clean_streak : 1}
+    }).then(() => {console.log('clean streak updated');});
+});
+
+client.on('ready', () => {
+    update_streak.start();
+    console.log(`Logged in as ${client.user.tag}!`);
+});
 
 client.on('guildCreate', guild => {
     guild.members.fetch().then(result => {
@@ -88,7 +106,7 @@ client.on('message', msg => {
         if(words) {
             const update = { 
                 $inc : { swear_usage : words },
-                $set : { clean_streak : 0 },
+                $set : { clean_streak : -1 },
                 $addToSet : { swear_quotes : {content:sentence, date:Date.now(), usage:words} } 
             }
             User.GuildUser.findOneAndUpdate(user_query, update).then();
@@ -145,6 +163,19 @@ client.on('message', msg => {
                     Guild.changeGuildSetting(msg.guild, setting, args.shift());
                 }else
                     msg.channel.send('invalid setting')
+                break;
+            case "help":
+                const helpEmbed = {
+                    color: 0x0099ff,
+                    title: 'SwearBot Commands',
+                    fields: [
+                        {
+                            name : 'swear usage',
+                            value : helpMsg
+                        },
+                    ]
+                };
+                msg.channel.send({embed : helpEmbed});
                 break;
             default:
                 msg.channel.send("unknown command");
