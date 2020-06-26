@@ -84,6 +84,16 @@ client.on('guildMemberAdd', member => {
     });
 });
 
+client.on('channelCreate', channel => {
+    Guild.GuildSetting.findOneAndUpdate({guild_id : channel.guild.id}, 
+        {$addToSet : {channels : {name:channel.name, id:channel.id, setting:'ignore'}}}
+    );
+});
+
+client.on('channelDelete', channel => {
+    Guild.GuildSetting.findOneAndUpdate({guild_id : channel.guild.id}, {$pull : {channels : {id:channel.id}}});
+});
+
 client.on('message', msg => {
     if(msg.author.bot) return;
     //check swear words in a message
