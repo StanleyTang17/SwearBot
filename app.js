@@ -87,11 +87,11 @@ client.on('guildMemberAdd', member => {
 client.on('channelCreate', channel => {
     Guild.GuildSetting.findOneAndUpdate({guild_id : channel.guild.id}, 
         {$addToSet : {channels : {name:channel.name, id:channel.id, setting:'ignore'}}}
-    );
+    ).then();
 });
 
 client.on('channelDelete', channel => {
-    Guild.GuildSetting.findOneAndUpdate({guild_id : channel.guild.id}, {$pull : {channels : {id:channel.id}}});
+    Guild.GuildSetting.findOneAndUpdate({guild_id : channel.guild.id}, {$pull : {channels : {id:channel.id}}}).then();
 });
 
 client.on('message', msg => {
