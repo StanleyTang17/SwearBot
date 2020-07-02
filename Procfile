@@ -1,1 +1,1 @@
-worker: cd .\bot\ & node app.js
+worker: cd bot ; node app.js
