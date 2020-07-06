@@ -11,13 +11,10 @@ const { doesNotMatch } = require('assert');
 require('dotenv-flow').config();
 
 const config = {
-    // token : process.env.TOKEN,
-    token : "NzIzNTYyOTQ2NTcxMDEwMTMw.Xu_HQg.x_aeWkPiSF3ghKbruWfyzDwh-wA",
+    token : process.env.TOKEN,
     owner : process.env.OWNER,
-    // prefix : process.env.PREFIX,
-    prefix : "!!",
-    // db_connection : process.env.DB_CONNECTION
-    db_connection : "mongodb+srv://stan1000101:stabMongoDB2020@cluster0-vs69m.azure.mongodb.net/test"
+    prefix : process.env.PREFIX,
+    db_connection : process.env.DB_CONNECTION
 }
 
 var swear_words;
