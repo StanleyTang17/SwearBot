@@ -75,7 +75,7 @@ module.exports = {
         const filename = user_data.name + "_" + user_data.guild_id + "_" + user_data.discord_id;
         const result = {
             filename : filename,
-            path : "/charts/" + filename + ".png",
+            path : "charts/" + filename + ".png",
             x_data_str : data.date_labels.join(','),
             y_data_str : data.swear_usages.join(',')
         };
