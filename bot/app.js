@@ -5,14 +5,19 @@ const User = require('./user');
 const Guild = require('./guild_setting');
 const fs = require('fs');
 const CronJob = require('cron').CronJob;
+const Chart = require('./chart.js');
+const { spawn } = require('child_process');
 const { doesNotMatch } = require('assert');
 require('dotenv-flow').config();
 
 const config = {
-    token : process.env.TOKEN,
+    // token : process.env.TOKEN,
+    token : "NzIzNTYyOTQ2NTcxMDEwMTMw.Xu_HQg.x_aeWkPiSF3ghKbruWfyzDwh-wA",
     owner : process.env.OWNER,
-    prefix : process.env.PREFIX,
-    db_connection : process.env.DB_CONNECTION
+    // prefix : process.env.PREFIX,
+    prefix : "!!",
+    // db_connection : process.env.DB_CONNECTION
+    db_connection : "mongodb+srv://stan1000101:stabMongoDB2020@cluster0-vs69m.azure.mongodb.net/test"
 }
 
 var swear_words;
@@ -127,7 +132,6 @@ client.on('message', msg => {
                             msg.member.ban();
                             msg.channel.send(`${msg.member.displayName} has been banned for exceeding the swear usage threshold!!`);
                         }
-                            
                     });
                 });
             });
@@ -157,25 +161,23 @@ client.on('message', msg => {
                 break;
             case "info":
                 User.GuildUser.findOne(user_query).then(result => {
-                    const infoEmbed = {
-                        color: 0x0099ff,
-                        title: `${msg.member.displayName}'s Swearing Profile`,
-                        fields: [
-                            {
-                                name : 'swear usage',
-                                value : result.swear_usage
-                            },
-                            {
-                                name : 'number of messages with swearing',
-                                value : result.swear_quotes.length
-                            },
-                            {
-                                name : 'clean streak',
-                                value : result.clean_streak
-                            }
-                        ]
-                    };
-                    msg.channel.send({embed : infoEmbed});
+                    const chart = Chart.getChartData(result);
+                    const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
+                    // console.log(`python chart.py ${chart.filename} ${chart.x_data_str} ${chart.y_data_str}`);
+                    python.on('close', code => {
+                        
+                        const img = 'attachment://' + chart.filename + '.png';
+                        const embed = new Discord.MessageEmbed()
+                            .setColor('0x0099ff')
+                            .setTitle(`${msg.member.displayName}'s Swearing Profile`)
+                            .addField('swear usage', result.swear_usage)
+                            .addField('number of messages with swearing', result.swear_quotes.length)
+                            .addField('clean streak', result.clean_streak)
+                            .attachFiles([chart.path])
+                            .setImage(img);
+                        
+                        msg.channel.send({embed : embed});
+                    });
                 });
                 break;
             case "swear":
