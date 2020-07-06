@@ -19,5 +19,5 @@ plt.ylabel('Swear Usage')
 plt.title('Your Swear Usage')
 plt.tight_layout()
 
-plt.savefig('charts\\' + name)
+plt.savefig('\\tmp\\' + name)
 # plt.show()
