@@ -158,23 +158,31 @@ client.on('message', msg => {
                 break;
             case "info":
                 User.GuildUser.findOne(user_query).then(result => {
-                    const chart = Chart.getChartData(result);
-                    const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
+                    // const chart = Chart.getChartData(result);
+                    // const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
                     // console.log(`python chart.py ${chart.filename} ${chart.x_data_str} ${chart.y_data_str}`);
-                    python.on('close', code => {
+                    // python.on('close', code => {
                         
-                        const img = 'attachment://' + chart.filename + '.png';
-                        const embed = new Discord.MessageEmbed()
+                    //     const img = 'attachment://' + chart.filename + '.png';
+                    //     const embed = new Discord.MessageEmbed()
+                    //         .setColor('0x0099ff')
+                    //         .setTitle(`${msg.member.displayName}'s Swearing Profile`)
+                    //         .addField('swear usage', result.swear_usage)
+                    //         .addField('number of messages with swearing', result.swear_quotes.length)
+                    //         .addField('clean streak', result.clean_streak)
+                    //         .attachFiles([chart.path])
+                    //         .setImage(img);
+                        
+                    //     msg.channel.send({embed : embed});
+                    // });
+                    const embed = new Discord.MessageEmbed()
                             .setColor('0x0099ff')
                             .setTitle(`${msg.member.displayName}'s Swearing Profile`)
                             .addField('swear usage', result.swear_usage)
                             .addField('number of messages with swearing', result.swear_quotes.length)
                             .addField('clean streak', result.clean_streak)
-                            .attachFiles([chart.path])
-                            .setImage(img);
                         
-                        msg.channel.send({embed : embed});
-                    });
+                    msg.channel.send({embed : embed});
                 });
                 break;
             case "swear":
