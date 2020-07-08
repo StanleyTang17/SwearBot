@@ -39,36 +39,15 @@ btn.addEventListener('click', () => {
                 select.appendChild(option);
 
                 var canvas = document.createElement('canvas');
-                createChart(canvas.getContext('2d'), guild_data);
+                var chart = createChart(canvas.getContext('2d'), guild_data);
+                canvas.onclick = event => {
+                    handleChartClick(event, chart);
+                };
                 canvas.style.display = 'none';
                 graph_container.appendChild(canvas);
                 graphs[guild_name] = canvas;
 
-                var quote_group = document.createElement('div');
-                guild_data.swear_quotes.forEach(quote => {
-                    var div_quote = document.createElement('div');
-                    var date = new Date(quote.date);
-                    var year = date.getFullYear();
-                    var month = date.getMonth() + 1;
-                    var day = date.getDate();
-
-                    var h6_date = document.createElement('h6');
-                    h6_date.innerHTML = `${year}/${month >= 10 ? month : '0'+month}/${day}`;
-
-                    var p_quote = document.createElement('p');
-                    p_quote.innerHTML = quote.content;
-                    
-                    div_quote.appendChild(h6_date);
-                    div_quote.appendChild(p_quote);
-                    if(quote_group.children.length > 0)
-                        div_quote.setAttribute('id', 'div_quote');
-
-                    quote_group.appendChild(div_quote);
-                });
-                
-                quote_group.style.display = 'none';
-                quote_container.appendChild(quote_group);
-                quote_groups[guild_name] = quote_group;
+                createQuoteGroup(guild_data);
             });
 
             var first_guild = guild_profiles[0].guild_name;
@@ -140,6 +119,67 @@ function createChart(ctx, guild_data) {
             }
         }
     });
+
+    return graph;
+}
+
+function createQuoteGroup(guild_data) {
+    var quote_group = document.createElement('div');
+    guild_data.swear_quotes.forEach(quote => {
+        var quote_div = document.createElement('div');
+        var date = new Date(quote.date);
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+
+        var h6_date = document.createElement('h6');
+        h6_date.innerHTML = `${year}/${month >= 10 ? month : '0'+month}/${day}`;
+
+        var p_quote = document.createElement('p');
+        p_quote.innerHTML = quote.content;
+        
+        quote_div.appendChild(document.createElement('br'));
+        quote_div.appendChild(h6_date);
+        quote_div.appendChild(p_quote);
+        quote_div.appendChild(document.createElement('br'));
+        if(quote_group.children.length > 0)
+            quote_div.setAttribute('id', 'div_quote');
+
+        quote_group.appendChild(quote_div);
+    });
+    quote_group.style.display = 'none';
+    quote_container.appendChild(quote_group);
+    quote_groups[guild_data.guild_name] = quote_group;
+}
+
+function handleChartClick(event, chart) {
+    var clicked_bar = chart.getElementAtEvent(event);
+    var guild_name = select.value;
+    var quote_divs = quote_groups[guild_name].children;
+
+    if(clicked_bar.length > 0) {
+        var first = true;
+        var date_label = chart.data.labels[clicked_bar[0]._index];
+        for(var i = 0; i < quote_divs.length; i++) {
+            var div = quote_divs[i];
+            var h6 = div.children[1];
+            if(h6.innerHTML.includes(date_label)) {
+                if(first){
+                    var graph_scroll = 100;
+                    var quote_scroll = 20;
+                    document.body.scrollTop = graph_scroll + i * quote_scroll;
+                    first = false;
+                }
+                div.style.backgroundColor = '#39446d';
+            }else {
+                div.style.backgroundColor = '';
+            }
+        }
+    }else{
+        for(var i = 0; i < quote_divs.length; i++) {
+            quote_divs[i].style.backgroundColor = '';
+        }
+    }
 }
 
 function addDays(date, days) {
@@ -149,7 +189,8 @@ function addDays(date, days) {
 }
 
 function parseLabel(date) {
-    return (date.getMonth()+1) + '-' + date.getDate();
+    var month = date.getMonth() + 1;
+    return (month > 9 ? month : '0'+month) + '/' + date.getDate();
 }
 
 function compareDate(date1, date2) {
