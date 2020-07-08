@@ -26,6 +26,88 @@ function compareDate(date1, date2) {
     }
 }
 
+/*
+//Chart.js method
+
+const Chart = require('chart.js');
+function createChart(ctx, guild_data) {
+    var dataMap = new Map();
+    var quotes = guild_data.swear_quotes;
+    var maxDate = new Date(Date.now());
+    var minDate = addDays(maxDate, -30);
+    
+    for(var i = 0; i < quotes.length; i++) {
+        const date = new Date(quotes[i].date);
+        if(compareDate(date, minDate) >= 0) {
+            minDate = date;
+            break;
+        }
+    }
+
+    var newDate = new Date(minDate);
+    while(compareDate(newDate, maxDate) <= 0) {
+        dataMap.set(parseLabel(newDate), 0);
+        newDate = addDays(newDate, 1);
+    }
+
+    for(var i = quotes.length - 1; i > -1; i--) {
+        const quote = quotes[i];
+        const date = new Date(quote.date);
+        if(compareDate(date, minDate) < 0) break;
+        const label = parseLabel(date);
+        dataMap.set(label, dataMap.get(label) + quote.usage);
+    }
+
+    var date_labels = [];
+    var swear_usages = [];
+    dataMap.forEach((value, key, map) => {
+        date_labels.push(key);
+        swear_usages.push(value);
+    })
+    
+
+    var graph = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: date_labels,
+            datasets: [{
+                label: 'swear usage',
+                data: swear_usages,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive : false,
+            animation : false,
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: true ,
+                        color: "#FF9999"
+                    }
+                }],
+                yAxes: [{
+                    gridLines: {
+                        display: true ,
+                        color: "#FF9999"
+                    },
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    return graph;
+}
+
+module.exports.createChart = createChart;
+*/
+
+//matplotlib method
 function getData(user_data) {
     var dataMap = new Map();
     var quotes = user_data.swear_quotes;

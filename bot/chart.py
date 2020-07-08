@@ -2,6 +2,8 @@ import sys
 import datetime as dt
 from matplotlib import pyplot as plt
 import matplotlib.dates as mdates
+from io import BytesIO
+import base64
 
 name = sys.argv[1]
 dates = sys.argv[2].split(',')
@@ -19,5 +21,12 @@ plt.ylabel('Swear Usage')
 plt.title('Your Swear Usage')
 plt.tight_layout()
 
-plt.savefig('\\tmp\\' + name)
-# plt.show()
+buffer = BytesIO()
+plt.savefig(buffer, format='png')
+buffer.seek(0)
+image_png = buffer.getvalue()
+buffer.close()
+graphic = base64.b64encode(image_png)
+graphic = graphic.decode('utf-8')
+
+print(graphic)

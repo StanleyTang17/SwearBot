@@ -1,11 +1,12 @@
 const Discord = require('discord.js');
+const Canvas = require('canvas');
 const client = new Discord.Client();
 const mongoose = require('mongoose');
 const User = require('./user');
 const Guild = require('./guild_setting');
 const fs = require('fs');
 const CronJob = require('cron').CronJob;
-const Chart = require('./chart.js');
+const Chart = require('./chart');
 const { spawn } = require('child_process');
 const { doesNotMatch } = require('assert');
 require('dotenv-flow').config();
@@ -158,31 +159,44 @@ client.on('message', msg => {
                 break;
             case "info":
                 User.GuildUser.findOne(user_query).then(result => {
-                    // const chart = Chart.getChartData(result);
-                    // const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
-                    // console.log(`python chart.py ${chart.filename} ${chart.x_data_str} ${chart.y_data_str}`);
-                    // python.on('close', code => {
-                        
-                    //     const img = 'attachment://' + chart.filename + '.png';
-                    //     const embed = new Discord.MessageEmbed()
-                    //         .setColor('0x0099ff')
-                    //         .setTitle(`${msg.member.displayName}'s Swearing Profile`)
-                    //         .addField('swear usage', result.swear_usage)
-                    //         .addField('number of messages with swearing', result.swear_quotes.length)
-                    //         .addField('clean streak', result.clean_streak)
-                    //         .attachFiles([chart.path])
-                    //         .setImage(img);
-                        
-                    //     msg.channel.send({embed : embed});
-                    // });
+                    /*
+                    Chart.js method
+
+                    const canvas = Canvas.createCanvas(900, 500);
+                    const ctx = canvas.getContext('2d');
+                    Chart.createChart(ctx, result);
+                    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'usage-graph.png');
+
                     const embed = new Discord.MessageEmbed()
+                        .setColor('0x0099ff')
+                        .setTitle(`${msg.member.displayName}'s Swearing Profile`)
+                        .addField('swear usage', result.swear_usage)
+                        .addField('number of messages with swearing', result.swear_quotes.length)
+                        .addField('clean streak', result.clean_streak)
+                        .attachFiles(attachment)
+                        .setImage('attachment://usage-graph.png');
+                    
+                    msg.channel.send({embed : embed});
+                    */
+
+                    //matplotlib method
+                    const chart = Chart.getChartData(result);
+                    const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
+                    python.stdout.on('data', data => {
+                        const base64String = data.toString();
+                        const buffer = Buffer.from(base64String, 'base64');
+                        const attachment = new Discord.MessageAttachment(buffer, 'usage-chart.png');
+                        const embed = new Discord.MessageEmbed()
                             .setColor('0x0099ff')
                             .setTitle(`${msg.member.displayName}'s Swearing Profile`)
                             .addField('swear usage', result.swear_usage)
                             .addField('number of messages with swearing', result.swear_quotes.length)
                             .addField('clean streak', result.clean_streak)
-                        
-                    msg.channel.send({embed : embed});
+                            .attachFiles(attachment)
+                            .setImage('attachment://usage-chart.png');
+                    
+                        msg.channel.send({embed : embed});
+                    });
                 });
                 break;
             case "swear":
