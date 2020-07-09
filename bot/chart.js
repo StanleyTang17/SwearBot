@@ -1,3 +1,5 @@
+const Canvas = require('canvas');
+
 function addDays(date, days) {
     var newDate = new Date(date);
     newDate.setDate(date.getDate() + days);
@@ -26,11 +28,13 @@ function compareDate(date1, date2) {
     }
 }
 
-/*
+
 //Chart.js method
 
 const Chart = require('chart.js');
-function createChart(ctx, guild_data) {
+function generate(guild_data) {
+    const canvas = Canvas.createCanvas(900, 500);
+    const ctx = canvas.getContext('2d');
     var dataMap = new Map();
     var quotes = guild_data.swear_quotes;
     var maxDate = new Date(Date.now());
@@ -64,7 +68,6 @@ function createChart(ctx, guild_data) {
         date_labels.push(key);
         swear_usages.push(value);
     })
-    
 
     var graph = new Chart(ctx, {
         type: 'bar',
@@ -82,17 +85,7 @@ function createChart(ctx, guild_data) {
             responsive : false,
             animation : false,
             scales: {
-                xAxes: [{
-                    gridLines: {
-                        display: true ,
-                        color: "#FF9999"
-                    }
-                }],
                 yAxes: [{
-                    gridLines: {
-                        display: true ,
-                        color: "#FF9999"
-                    },
                     ticks: {
                         beginAtZero: true
                     }
@@ -101,13 +94,14 @@ function createChart(ctx, guild_data) {
         }
     });
 
-    return graph;
+    return canvas;
 }
 
-module.exports.createChart = createChart;
-*/
+module.exports.generate = generate;
 
-//matplotlib method
+
+//matplotlib method (doesn't work on heroku)
+/*
 function getData(user_data) {
     var dataMap = new Map();
     var quotes = user_data.swear_quotes;
@@ -164,3 +158,4 @@ module.exports = {
         return result;
     }
 }
+*/

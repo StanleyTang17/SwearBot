@@ -6,6 +6,7 @@ const Guild = require('./guild_setting');
 const fs = require('fs');
 const CronJob = require('cron').CronJob;
 const Chart = require('./chart');
+const Canvas = require('canvas');
 const { spawn } = require('child_process');
 const { doesNotMatch } = require('assert');
 require('dotenv-flow').config();
@@ -158,12 +159,15 @@ client.on('message', msg => {
                 break;
             case "info":
                 User.GuildUser.findOne(user_query).then(result => {
-                    /*
-                    Chart.js method
-
+                    
+                    // Chart.js method
                     const canvas = Canvas.createCanvas(900, 500);
                     const ctx = canvas.getContext('2d');
-                    Chart.createChart(ctx, result);
+                    const chart = Chart.generate(result);
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, 900, 500);
+                    ctx.drawImage(chart, 0, 0, 900, 500);
+
                     const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'usage-graph.png');
 
                     const embed = new Discord.MessageEmbed()
@@ -176,9 +180,10 @@ client.on('message', msg => {
                         .setImage('attachment://usage-graph.png');
                     
                     msg.channel.send({embed : embed});
-                    */
+                    
 
-                    //matplotlib method
+                    //matplotlib method (doesn't work on heroku)
+                    /*
                     const chart = Chart.getChartData(result);
                     const python = spawn('python', ['chart.py', chart.filename, chart.x_data_str, chart.y_data_str]);
                     python.stdout.on('data', data => {
@@ -196,6 +201,7 @@ client.on('message', msg => {
                     
                         msg.channel.send({embed : embed});
                     });
+                    */
                 });
                 break;
             case "swear":
